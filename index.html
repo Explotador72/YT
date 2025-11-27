@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente de Prueba - YT Downloader API</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-xl w-full bg-white shadow-xl rounded-xl p-8 space-y-6">
+        <h1 class="text-3xl font-bold text-gray-800 text-center">API Backend Tester</h1>
+        <p class="text-sm text-gray-600 text-center">
+            Prueba de la funcionalidad de descarga de video en el backend de Replit.
+        </p>
+
+        <!-- Configuración de la URL de la API -->
+        <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+            <label for="apiUrl" class="block text-sm font-medium text-red-700 mb-2">
+                ⚠️ URL del Backend de Replit (¡CAMBIAR!)
+            </label>
+            <input type="url" id="apiUrl" value="https://TU-NOMBRE-DE-REPLIT.replit.dev" 
+                   class="w-full p-2 border border-red-300 rounded-md focus:ring-red-500 focus:border-red-500 text-sm"
+                   placeholder="Ej: https://mi-yt-downloader.replit.dev">
+        </div>
+
+        <!-- Entrada de URL de Video -->
+        <div>
+            <label for="videoUrl" class="block text-sm font-medium text-gray-700 mb-2">
+                URL de YouTube
+            </label>
+            <input type="url" id="videoUrl" value="https://www.youtube.com/watch?v=dQw4w9WgXcQ" 
+                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                   placeholder="Pega la URL del video aquí">
+        </div>
+
+        <!-- Botón de Descarga -->
+        <button onclick="startProcess()" id="downloadButton"
+                class="w-full py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+            🚀 Iniciar Descarga de Prueba
+        </button>
+
+        <!-- Área de Estado -->
+        <div id="status" class="mt-4 p-4 rounded-lg text-sm transition-all duration-300">
+            <!-- Los mensajes de estado aparecerán aquí -->
+        </div>
+
+    </div>
+
+    <script>
+        const statusElement = document.getElementById('status');
+        const downloadButton = document.getElementById('downloadButton');
+        const apiUrlInput = document.getElementById('apiUrl');
+        const videoUrlInput = document.getElementById('videoUrl');
+
+        // Función para mostrar mensajes de estado con color
+        function showStatus(message, type = 'info') {
+            let bgColor, textColor;
+            if (type === 'success') {
+                bgColor = 'bg-green-100';
+                textColor = 'text-green-800';
+            } else if (type === 'error') {
+                bgColor = 'bg-red-100';
+                textColor = 'text-red-800';
+            } else if (type === 'loading') {
+                bgColor = 'bg-yellow-100';
+                textColor = 'text-yellow-800';
+            } else {
+                bgColor = 'bg-gray-100';
+                textColor = 'text-gray-800';
+            }
+            statusElement.className = `mt-4 p-4 rounded-lg text-sm transition-all duration-300 ${bgColor} ${textColor}`;
+            statusElement.innerHTML = message;
+        }
+
+        // --- Lógica Principal del Proceso ---
+
+        async function startProcess() {
+            const REPLIT_API_URL = apiUrlInput.value.trim();
+            const videoUrl = videoUrlInput.value.trim();
+
+            if (REPLIT_API_URL.includes('TU-NOMBRE-DE-REPLIT')) {
+                showStatus('❌ Por favor, ingresa la URL real de tu backend de Replit.', 'error');
+                return;
+            }
+            if (!videoUrl) {
+                showStatus('❌ Ingresa la URL de un video de YouTube.', 'error');
+                return;
+            }
+            
+            downloadButton.disabled = true;
+            downloadButton.innerHTML = '<span class="animate-spin mr-2">⚙️</span> Procesando... (Puede tardar hasta 30s)';
+            
+            showStatus(`⏳ Paso 1/2: Solicitando descarga a ${REPLIT_API_URL}...`, 'loading');
+
+            try {
+                // Paso 1: Llamar al endpoint /api/download para iniciar la descarga en el backend
+                const downloadResponse = await fetch(`${REPLIT_API_URL}/api/download`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: videoUrl })
+                });
+
+                const downloadData = await downloadResponse.json();
+
+                if (!downloadResponse.ok || !downloadData.success) {
+                    const errorMsg = downloadData.error || `Error desconocido (HTTP ${downloadResponse.status})`;
+                    showStatus(`❌ Error en el backend (Paso 1): ${errorMsg}`, 'error');
+                    return;
+                }
+
+                const filename = downloadData.filename;
+                const downloadUrlRelative = downloadData.download_url;
+                const fileUrl = `${REPLIT_API_URL}${downloadUrlRelative}`;
+
+                showStatus(`✅ Paso 1/2 Completado. Video "${downloadData.title}" descargado en el servidor. <br> ⏳ Paso 2/2: Iniciando descarga del archivo...`, 'loading');
+
+                // Paso 2: Usar la URL de archivo proporcionada para que el navegador descargue el video
+                
+                // Opción 1: Redirigir la ventana (más simple y confiable)
+                window.location.href = fileUrl;
+                
+                // Mostrar éxito inmediatamente después de la redirección
+                showStatus(`🎉 Éxito! El archivo "${filename}" se está descargando en tu navegador.`, 'success');
+
+                // Nota: Usar window.location.href es la manera más sencilla de forzar la descarga en el navegador.
+
+            } catch (error) {
+                showStatus(`❌ Error de conexión o fatal: ${error.message}`, 'error');
+            } finally {
+                downloadButton.disabled = false;
+                downloadButton.innerHTML = '🚀 Iniciar Descarga de Prueba';
+            }
+        }
+    </script>
+</body>
+</html>
