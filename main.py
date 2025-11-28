@@ -123,12 +123,15 @@ def api_download():
         
         if result['success']:
             # Devolver los metadatos para que el cliente sepa qué descargar
-            return jsonify({
+            json = jsonify({
                 'success': True,
                 'title': result['title'],
                 'filename': result['filename'],
                 'download_url': f"/api/file/{result['filename']}"
             })
+            print(json, "aqui")
+            return json
+            
         else:
             return jsonify({'success': False, 'error': result['error']}), 500
             

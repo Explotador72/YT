@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente de Prueba LOCAL - YT Downloader API (FIX)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-xl w-full bg-white shadow-xl rounded-xl p-8 space-y-6">
+        <h1 class="text-3xl font-bold text-gray-800 text-center">API Backend Tester (FIX)</h1>
+        <p class="text-sm text-gray-600 text-center">
+            Este cliente llama a tu servidor local en <strong>http://localhost:5000</strong>.
+        </p>
+
+        <!-- Configuración de la URL de la API -->
+        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+            <label for="apiUrl" class="block text-sm font-medium text-green-700 mb-2">
+                URL del Backend (Configurado en Localhost)
+            </label>
+            <input type="url" id="apiUrl" value="http://localhost:5000" 
+                   class="w-full p-2 border border-green-300 rounded-md focus:ring-green-500 focus:border-green-500 text-sm">
+        </div>
+
+        <!-- Entrada de URL de Video -->
+        <div>
+            <label for="videoUrl" class="block text-sm font-medium text-gray-700 mb-2">
+                URL de YouTube
+            </label>
+            <input type="url" id="videoUrl" value="https://www.youtube.com/watch?v=dQw4w9WgXcQ" 
+                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                   placeholder="Pega la URL del video aquí">
+        </div>
+
+        <!-- Botón de Descarga -->
+        <!-- CORRECCIÓN DE RECARGA: Pasamos el objeto event en el onclick -->
+        <button type="button" id="downloadButton"
+                class="w-full py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+            🚀 Iniciar Descarga Local
+        </button>
+
+        <!-- Área de Estado -->
+        <div id="status" class="mt-4 p-4 rounded-lg text-sm transition-all duration-300">
+            Presiona el botón para empezar la prueba.
+        </div>
+
+    </div>
+
+    <script src="local.js"></script>
+</body>
+</html>
